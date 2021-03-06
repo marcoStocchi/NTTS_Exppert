@@ -1,0 +1,33 @@
+1. implements checks 
+	for first field of tuple
+	to be integer and reserved
+	for the ID, which is used
+	to store the record key
+	as integer
+
+2. complete CK parameters
+	// double 
+	// 	_CK_D(3.0), 				
+	// 	_CK_V(8.0), 				
+	// 	_CK_js(1.0);				OK
+
+3. install ptable                   OK
+   test create ptable               OK
+
+4. remove inefficiency at 
+	response::noise_dp_finalize
+	using static distributions
+	laplace and geometric			OK
+
+5. implement --test					OK
+
+6. implement --code-list
+
+7. refactor LIBSSH423      
+   verify_knownhost                 OK
+
+8. refactor random_distp.hpp        OK
+
+9. add secure allocator and modify
+   confly::distribute() ln.
+   _Passw=::getpass()               OK
