@@ -1,0 +1,66 @@
+{
+    "path": 
+    {
+        "dir_project": "/data/NTTS_Exppert",
+        "dir_output": "/data/NTTS_Exppert/data/output",
+        "file_ptable": "/data/NTTS_Exppert/data/ptable.dat",
+        "file_input": "/data/DP/data/hc_9_2_synth.csv"
+    },
+
+    "machines":
+    [
+        
+    ],
+
+    "rate": "0.9",
+
+    "size": "6",
+
+    "begin": "0",
+
+    "prng":
+    {
+        "engine": "mersennetwister",
+        "seed": "42",
+        "test": "10000"
+    },
+
+    "noise":
+    {
+        "DPF_mu": "0.0",
+        "DPF_b": "2.0",
+        "DPG_eps": "0.5",
+        "CK_D": "3.0",
+        "CK_var": "8.0",
+        "CK_js": "1.0"
+    },
+
+    "micro":
+    [
+        {
+            "name": "id",
+            "type": "int",
+            "cube": "false"
+        },
+        {
+            "name": "geo",
+            "type": "int",
+            "cube": "true"
+        },
+        {
+            "name": "sex",
+            "type": "int",
+            "cube": "true"
+        },
+        {
+            "name": "age",
+            "type": "int",
+            "cube": "false"
+        },
+        {
+            "name": "yae",
+            "type": "int",
+            "cube": "false"
+        }
+    ]
+}

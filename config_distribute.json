@@ -1,0 +1,71 @@
+{
+    "path": 
+    {
+        "dir_project": "/home/eshome/stocmar/HYPERCUBE2",
+        "dir_output": "/home/eshome/stocmar/HYPERCUBE2/data/output",
+        "file_ptable": "/home/eshome/stocmar/HYPERCUBE2/data/ptable.dat",
+        "file_input": "/home/eshome/stocmar/DP/data/hc_9_2_synth.csv"
+    },
+
+    "machines":
+    [
+        "s-estat-bgdnode-01.eurostat.cec",
+        "s-estat-bgdnode-02.eurostat.cec",
+        "s-estat-bgdnode-03.eurostat.cec",
+        "s-estat-bgdnode-04.eurostat.cec",
+        "s-estat-bgdnode-05.eurostat.cec",
+        "s-estat-bgdnode-06.eurostat.cec"
+    ],
+
+    "rate": "0.9",
+
+    "size": "96",
+
+    "begin": "0",
+
+    "prng":
+    {
+        "engine": "mersennetwister",
+        "seed": "42",
+        "test": "10000"
+    },
+
+    "noise":
+    {
+        "DPF_mu": "0.0",
+        "DPF_b": "2.0",
+        "DPG_eps": "0.5",
+        "CK_D": "3.0",
+        "CK_var": "8.0",
+        "CK_js": "1.0"
+    },
+
+    "micro":
+    [
+        {
+            "name": "id",
+            "type": "int",
+            "cube": "false"
+        },
+        {
+            "name": "geo",
+            "type": "int",
+            "cube": "true"
+        },
+        {
+            "name": "sex",
+            "type": "int",
+            "cube": "true"
+        },
+        {
+            "name": "age",
+            "type": "int",
+            "cube": "false"
+        },
+        {
+            "name": "yae",
+            "type": "int",
+            "cube": "false"
+        }
+    ]
+}

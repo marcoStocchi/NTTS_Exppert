@@ -1,0 +1,53 @@
+{
+   "path": 
+   {
+       "dir_project": "path/to/the/HYPERCUBE2",
+       "dir_output": "path/to/the/HYPERCUBE2/data/output",
+       "file_ptable": "path/to/the/HYPERCUBE2/data/ptable.dat",
+       "file_input": "path/to/the/data/yourinputfile.csv"
+   },
+
+   "machines":
+    [
+        "if using only this machine, leave this array empty.",
+        "Alternatively, a comma separated list of hostnames reachable via SSH.",
+        "See config_distribute.json to learn how to use 6 server machines."
+    ],
+
+    "rate": "sampling rate floating point value in the range (0.0, 1.0)",
+    "size": "number of hypercubes to generate, e.g. 10", 
+    "begin": "0",
+    "prng":
+    {
+        "engine": "mersennetwister",
+        "seed": "hint to seed, e.g. 42",
+        "test": "num of extractions to test random engines"
+    },
+
+    "noise":
+    {
+        "DPF_mu": "vanilla laplace location, e.g: 0.0",
+        "DPF_b": "vanilla laplace scaling, e.g: 2.0",
+        "DPG_eps": "geometric epsilon, e.g.: 0.5",
+        "CK_D": "cellekey bound, e.g: 3.0",
+        "CK_var": "cellkey variance, e.g. 8.0",
+        "CK_js": "celleky threshold, e.g. 1.0"
+    },
+
+    "micro":
+    [
+        {
+            "name": "id",
+            "type": "int",
+            "cube": "false"
+        },
+
+        "...all the fields of the microdata, where:",
+        "name is the name of the field",
+        "type is the type of the field (int= signed integer 64 bits)",
+        "cube is a flag specifying if the variable has to be", 
+        "- aggregated only (false), or",
+        "- reported in the hypercube as well (true).", 
+        "In the first case, only totals will be generated." 
+    ]
+}
