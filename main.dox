@@ -1,0 +1,368 @@
+/*! \mainpage Exppert
+ * microdata sampling and hypercubes generator
+ * 
+ * The purpose of this project is to generate hypercubes starting
+ * from a microdata set, applying both bounded noise and differential
+ * privacy noise types to the hypercube leafs in order to benchmark
+ * the three types of perturbation.
+ * 
+ * The software has been designed with some degree of extensibility
+ * in order to be applied, in the next future, to different types
+ * of input tables while retaining the performance and efficiency
+ * typical of the compilable software.
+
+ * Requirements:
+ * In order to build the software from sources, the following software is required:
+ * - GCC (ver. >= 4.4.7)
+ * - OpenMP (libGomp) (ver. >= 3.0)
+ * - Boost C++ libraries (ver. >= 1.69)
+ * - OpenSSL (libSSL, libCrypto) (ver. >= 1.0.1)
+ * - libSSH (ver. >= 4.2.3)
+ * - R (libR) (ver. >= 3.5.1)
+ * - R package (Ptable)
+ *
+ * Installation:
+ * Please refer to INSTALL file.
+ *
+ * Configuration:
+ * configuring Exppert is a quite straightforward operation. All is needed is a config.json file 
+ * containing parameters such as immutable paths, machine hostname(s), sampling and noise 
+ * noise, metadata relative to the input file. The project's directory contains a sample 
+ * configuration file. We recommend to keep it as a reference instead of modifying it directly.
+ * Exppert can be configured to perform the following activities:
+ *   -# read and sample a microdata set.
+ *   -# generate hypercubes from the samples, applying bounded noise using Cell-Key method and two types of differential privacy noise drawn from Laplace and Geometric distributions.
+ *   -# traverse the hypercubes in order to horizontally extract the computed output (raw frequencies, cell-key perturbed and differential privacy perturbed counts).
+ *   -# plot the empirical cumulative distributions of the traversing structures.
+ *
+ * Currently the software can be used in several different ways:
+ * - run on a single machine, as a single process, in order to perform all the four activities listed above;
+ * - run on a single machine, in three separate processes.
+ * - run on a cluster of machines, distributing 1-2 first, then traversing and plotting.
+ *
+ * - \subpage buildInstructions "Build Exppert from sources"
+ *
+ * - \subpage configInstructions "Instructions for configuring Exppert"
+ *
+ * - \subpage testInstructions "Test the Exppert setup"
+ *
+ * - \subpage samplingTraversingPage "Sample microdata, generate hypercubes and traverse them in one take"
+ *
+ * - \subpage samplingHypercubePage "Sample microdata and generate hypercubes, traverse later"
+ *
+ * - \subpage distribPage "Distribute sampling and hypercubes generation across multiple machines"
+ *
+ * - \subpage ptablePage "Creating new p-tables"
+ *
+ * - \subpage randomtestPage "Testing Differential Privacy distributions"
+*/ 
+
+/*! \page buildInstructions Build Exppert from sources
+ * - Clone the Git repository of Exppert.
+ * - Check that all the dependencies are installed. They are basic software included in the stack of the vast majority of the Hadoop-like distributions:
+ *   - if GCC is not available, Exppert will not work.
+ *   - if Boost libraries are not available, Exppert will not work. However, Boost doesn't need to be necessarily installed in your system. A copy of Boost in the user space will suffice, provided that the "make_path" file (see macro PATH_BOOST) is correctly set.
+ *   - if OpenSSL (libCrypto) is not available, Exppert will not work. 
+ *   - if R is not available, Exppert will not work either. 
+ *   - if libSSH is not available, Exppert can work without it, only on the local machine (no distributed jobs).
+ * - Install the R package "ptable".
+ * - follow the steps below (also listed in INSTALL) in order to build Exppert and this documentation:
+ *
+ * check your ~/.bashrc and make sure you are adding the boost/lib and ~/lib to the 
+ * LD_LIBRARY_PATH, so that Exppert can find the libraries at runtime. 
+ * For example, a user called USER001:
+ *
+ * @code 
+ * $ cd 
+ * $ nano .bashrc
+ * PATH=$PATH:~/bin
+ * LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/USER001/boost/boost_1_69_0/lib:/path/to/USER001/lib
+ * $ exit
+ * @endcode
+ *
+ * Exit the shell and login again. Change working directory to hypercube, and start building the software:
+ *
+ * @code 
+ * $ cd hypercube
+ * $ make clean 
+ * $ make 
+ * $ make doc 
+ * @endcode
+ *
+ * In order to test the build of plugins, including the one needed to read the sample input hc_9_2_synth.csv file,
+ * optionally run:
+ *
+ * @code 
+ * $ make plugin CFLAGS=lllll
+ * @endcode
+ *
+ * In case of troubles, you can test the makefile is correctly setup using:
+ *     
+ * @code 
+ * $ make test
+ * @endcode
+ *
+ * To remove all the contents of the output folder (warning: check the correctness of the PATH_DATA_OUT before!):
+ *     
+ * @code 
+ * $ make clean-output
+ * @endcode
+ *
+ * If everything has gone well, find the binaries in your build directory. 
+ * Exppert is also copied into the supplied installation path (user space),
+ * in order for you to be able to run Exppert without the prefixing shell commands
+ * with "./".
+ * Unless specified in the make_path file, make will not attempt to perform a full
+ * installation of the software. This has been done in order to let non-privileged
+ * users be able to build and run Exppert in full autonomy.
+ */ 
+
+/*! \page configInstructions Instructions for configuring Exppert
+ *
+ * Edit the config.json file specifying all the parameters. Find the "config.json" file as 
+ * a practical example.
+ * Remarks:
+ * - "path": 
+ *   - "dir_project": the root path of the project, where makefile and doxyfile are located.
+ *   - "dir_output": a subdirectory created to store output data.
+ *   - "file_ptable": absolute path to the ptable.dat file.
+ *   - "file_input": absolute path to the input file. Currently only .csv and similar text files.
+ * - "machines". The list of machines can be empty if Exppert is intended to run only on a single machine.
+ *    Alternatively, a comma separated list of hostnames or IP addresses reachable via SSH from the machine 
+ *    sparking the distribution and accessible by the current user with password. Notes:
+ *    - the SSH connection will always fail, unless the current user has previously SSH'd the target machine at least once, using a client tool like 'ssh' from the command line.  
+ *    - the distribution mechanism relies on a network file system in order to share the binaries of Exppert.
+ * - "rate": sampling rate of the microdata: a floating point value in the range (0.0, 1.0).
+ * - "size": the number of hypercubes to generate. The sampling process is repeated for each hypercube.
+ * - "begin": specifies the ordinal of the first hypercube to generate (usually "0"). This parameter can be used in order to further split large aggregation tasks in more than one job. 
+ * - "prng":
+ *   - "engine": only "mersennetwister" is currently implemented.
+ *   - "seed": hint to the seed. The actual seed will depend on the ordinal of the machine used.
+ *   - "test": number of draws from Laplace and Geometric distributions when testing the generators using the command line argument "--random".
+ * - "noise":
+ *   - "DPF_mu": vanilla laplace location parameter (usually "0.0").
+ *   - "DPF_b": "vanilla laplace scaling parameter (variance=2b^2, for instance "2.0" corresponds to variance 8.0). 
+ *   - "DPG_eps": "geometric epsilon or privacy budget (eps=1/b), thus "0.5" corresponds to variance 8.0).
+ *   - "CK_D": Cell-Key bound parameter.
+ *   - "CK_var": Cell-Key variance,
+ *   - "CK_js": Cell-Key threshold.
+ * - "micro": array of triplet objects specifying name, type and cube parameters:
+ *   - "name": the name of the field.
+ *   - "type": the type of the field. Currently tested only on integers (int), Exppert has provisions for handling generic types such as standard strings or custom types.  
+ *   - "cube": flag set to "true" specifies that both the actual microdata values and the subtotals should be visible on the hypercube; set to "false" for subtotals only.
+ *     This parameter is important because it impacts heavily on the size of the hypercubes and on the aggregation time required.
+ */
+
+/*! \page testInstructions Test the Exppert setup
+ * To show usage commands and a few examples, use:
+ *
+ * @code 
+ * $ exppert
+ * @endcode
+ *
+ * In order to test the configuration and the SSH to the list of 
+ * machines, run:
+ *
+ * @code 
+ * $ exppert --test
+ * @endcode
+ *
+ * At any time one can specify the configuration filename using the
+ * option 'c' or '--conf' followed by the name of the json formatted
+ * configuration:
+ *
+ * @code 
+ * $ exppert -c myconfig.json --test
+ * @endcode
+ */
+
+/*! \page samplingTraversingPage Sample microdata, generate hypercubes and traverse them in one take
+ *
+ * The following example is thought to run only in the local machine 
+ * (localhost); thus without distributing the job. 
+ * Edit the config_localhost.json first, make sure that
+ * the "path" group contains correct paths.
+ * Then follow the instructions below in order to perform the following:
+ * - read the input dataset; 
+ * - sample the input at 90% and aggregate no. 10 hypercubes;
+ * - perform the final traversing of the cubes;
+ * - output the cubes and all the traversing files;
+ * - generate ECDF plots for each traversing structure.
+ *
+ * @code 
+ * $ make clean-output
+ * $ exppert --conf config_localhost.json --aggregate
+ * @endcode
+ *
+ * Things will churn out for a while. Typical sample console output
+ * would be:
+ *
+ * @code 
+ * s-estat-xxx.eurostat.cec host name is missing in the configuration file
+ * s-estat-xxx.eurostat.cec is to create 10 of total 10 hypercubes starting from ordinal 0
+ * s-estat-xxx.eurostat.cec starting aggregating ...
+ * s-estat-xxx.eurostat.cec : hypercube 2 done
+ * s-estat-xxx.eurostat.cec : hypercube 4 done
+ * ...
+ * s-estat-xxx.eurostat.cec : 10 hypercubes done in 8.3734 seconds
+ * @endcode
+ *
+ * In order to create ECDF plots for each of the traversing
+ * structures, run:
+ *
+ * @code 
+ * $ exppert -c config_localhost.json --plot
+ * @endcode
+ *
+ * Then find all the output files: 
+ * @code 
+ * $ ll data/output/
+ * @endcode
+ * 
+ */
+
+/*! \page samplingHypercubePage Sample microdata and generate hypercubes, traverse later
+ *
+ * Splitting the generation of cubes and their traversing
+ * resembles the Hadoop map-reduce logic, since
+ * expensive operations are distributed across all the computational resources available,
+ * while the extraction of the results are deferred to a later (often unexpensive) job.
+ * Running Exppert with the '--no-traverse' option will cause the output folder 
+ * to be populated only with hypercubes. 
+ * For instance:
+ * 
+ * @code 
+ * $ make clean-output
+ * $ exppert --conf config_localhost.json --aggregate --no-traverse
+ * @endcode
+ *
+ * One can find the output files in the configured output folder.
+ * In order to proceed and compute the traversing structures:
+ *
+ * @code 
+ * $ exppert --conf config_localhost.json --traverse
+ * @endcode
+ *
+ * Similarly to the \ref samplingTraversingPage "previous example", one can 
+ * use the Exppert's R-embedded interpreter to perform the ECDF plots
+ * at this stage:
+ *
+ * @code 
+ * $ exppert --conf config_localhost.json --plot
+ * @endcode
+ *
+ * Traversing the cubes should be a quite fast operation and it's impact
+ * on the overall computation time should result as minimal.
+ */
+
+/*! \page distribPage Distribute sampling and hypercubes generation across multiple machines
+ *
+ * In order to distribute the aggregation job across multiple machines, 
+ * the Exppert user must have succesfully performed an SSH connection to each of 
+ * server listed in the configuration file. 
+ * Although the SSH2 protocol allows exceptions logically thought to allow 
+ * a first time user's connection to a server, this is not desired nor in 
+ * the scope of a tool for statistics.
+ * Check the configuration file and make sure that all the machines involved
+ * in the computation are correctly listed (hostnames or IP v.4 addresses 
+ * are equally accepted).
+ *
+ * @code 
+ * $ make clean-output
+ * $ exppert --conf config_distribute.json --distribute
+ * enter ssh password:
+ * @endcode
+ *
+ * The user will enter the SSH passphrase in order to authenticate the connection 
+ * to each of the clustered machines. 
+ * The following is a typical Exppert console output:
+ *
+ * @code 
+ * machines connected
+ * running remote command exppert -c config_distribute.json --aggregate --no-traverse
+ * s-node-004.eurostat.cec configured as id 3 of 6 machines
+ * s-node-004.eurostat.cec is to create 16 of total 96 hypercubes starting from ordinal 48
+ * s-node-003.eurostat.cec configured as id 2 of 6 machines
+ * s-node-001.eurostat.cec is to create 16 of total 96 hypercubes starting from ordinal 0
+ * s-node-005.eurostat.cec configured as id 4 of 6 machines
+ * ...
+ * s-node-005.eurostat.cec starting aggregating ...
+ * s-node-004.eurostat.cec starting aggregating ...
+ * ...
+ * s-node-004.eurostat.cec : hypercube 49 done
+ * s-node-001.eurostat.cec : hypercube 9 done
+ * ...
+ * s-node-005.eurostat.cec : 16 hypercubes done in 11.9813 seconds
+ * s-node-003.eurostat.cec : hypercube 33 done
+ * ...
+ * s-node-001.eurostat.cec : 16 hypercubes done in 11.3238 seconds
+ * s-node-006.eurostat.cec : hypercube 89 done
+ * ...
+ * 96 hypercubes done in 19.2617 seconds
+ * @endcode
+ *
+ * Traversing and plotting can then be achieved using the usual
+ * procedure:
+ * @code 
+ * $ exppert --conf config_distribute.json --traverse
+ * traversed 96 hypercubes done in 0.182801 seconds
+ * $ exppert --conf config_distribute.json --plot
+ * ecdf_4_2_-1_-1.png done
+ * ecdf_19_2_-1_-1.png done
+ * ecdf_39_2_-1_-1.png done
+ * ecdf_3_1_-1_-1.png done
+ * ... long list
+ * @endcode 
+ */
+
+/*! \page ptablePage Creating new p-tables
+ *
+ * After having described the use of Exppert to 
+ * perform some basic aggregation tasks, here we 
+ * show how to create new Cell-Key's p-tables.
+ * This allows the use of Exppert as a benchmarking tool 
+ * of different perturbation methods featuring the same 
+ * noise variance.
+ * The parameters for the Cell-Key that
+ * the user specifies in the configuration file, i.e.:
+ * - "CK_D"
+ * - "CK_var"
+ * - "CK_js"
+ *
+ * are valid for the creation of a new p-table as well.
+ * Modify your ptable filename parameter (under the "path"
+ * group, field "file_ptable"), in order to avoid 
+ * Exppert to overwrite the old p-table file, 
+ * if any exist. Save the configuration file and run:
+ *
+ * @code 
+ * $ exppert --conf config_localhost.json --ptable
+ * @endcode
+ *
+ * Exppert will invoke the R interpreter and load the 
+ * "ptable.R" script, which in turn uses the "ptable"
+ * package (the one published in the SdcTools Git
+ * repository) in order to create a new ptable.
+ * Find the new file at the path and with the
+ * filename specified in the configuration.  
+*/
+
+/*! \page randomtestPage Testing Differential Privacy distributions
+ * 
+ * Exppert can create random sequences of noise drawn from 
+ * Laplace and Geometric distributions, in order to perform
+ * input-agnostic benchmarking tests.
+ * In order to run the test, run:
+ *
+ * @code 
+ * $ exppert --conf config_localhost.json --random
+ * @endcode
+ *
+ * then find rand_1000.csv (containing the randoms) 
+ * and rand_1000.png (ECDF plot) in the output 
+ * folder. 
+ * The actual filenames are not configurable and they
+ * are composed by concatenating the immutable string 
+ * "rand_" and the actual size of the test, as specified
+ * in the field "prng.test" of the configuration file.
+*/
