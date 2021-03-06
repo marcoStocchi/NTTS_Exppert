@@ -20,7 +20,7 @@ The build has been tested on Red Hat Enterprise (R) Linux 6.1 (Santiago) and on 
 - input dataset (https://github.com/eurostat/confly/blob/master/data/hc_9_2_synth.csv)
 
 #### Build from sources
-Install all the dependencies, then 
+Install all the dependencies, then follow the instructions contained in INSTALL in order to correctly set your PATH and LD_LIBRARY_PATH. Then:
 
 ```sh
 $ git clone https://github.com/marcoStocchi/NTTS_Exppert.git exppert
