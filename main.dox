@@ -11,7 +11,7 @@
  * of input tables while retaining the performance and efficiency
  * typical of the compilable software.
 
- * Requirements:
+ * Dependencies:
  * In order to build the software from sources, the following software is required:
  * - GCC (ver. >= 4.4.7)
  * - OpenMP (libGomp) (ver. >= 3.0)
@@ -25,10 +25,10 @@
  * Please refer to INSTALL file.
  *
  * Configuration:
- * configuring Exppert is a quite straightforward operation. All is needed is a config.json file 
- * containing parameters such as immutable paths, machine hostname(s), sampling and noise 
- * noise, metadata relative to the input file. The project's directory contains a sample 
- * configuration file. We recommend to keep it as a reference instead of modifying it directly.
+ * configuring Exppert is a quite straightforward operation. All is needed is a configuration file 
+ * (json format) containing parameters such as immutable paths, machine hostname(s), sampling and noise 
+ * noise, metadata relative to the input file. The project's directory contains some sample 
+ * configuration files.
  * Exppert can be configured to perform the following activities:
  *   -# read and sample a microdata set.
  *   -# generate hypercubes from the samples, applying bounded noise using Cell-Key method and two types of differential privacy noise drawn from Laplace and Geometric distributions.
@@ -39,6 +39,8 @@
  * - run on a single machine, as a single process, in order to perform all the four activities listed above;
  * - run on a single machine, in three separate processes.
  * - run on a cluster of machines, distributing 1-2 first, then traversing and plotting.
+ *
+ * Further reading:
  *
  * - \subpage buildInstructions "Build Exppert from sources"
  *
@@ -64,37 +66,9 @@
  *   - if Boost libraries are not available, Exppert will not work. However, Boost doesn't need to be necessarily installed in your system. A copy of Boost in the user space will suffice, provided that the "make_path" file (see macro PATH_BOOST) is correctly set.
  *   - if OpenSSL (libCrypto) is not available, Exppert will not work. 
  *   - if R is not available, Exppert will not work either. 
- *   - if libSSH is not available, Exppert can work without it, only on the local machine (no distributed jobs).
+ *   - if libSSH is not available, Exppert can work without it, only on the local machine (no distributed jobs). However the current makefile does not allow you to make the project without the libssh.
  * - Install the R package "ptable".
- * - follow the steps below (also listed in INSTALL) in order to build Exppert and this documentation:
- *
- * check your ~/.bashrc and make sure you are adding the boost/lib and ~/lib to the 
- * LD_LIBRARY_PATH, so that Exppert can find the libraries at runtime. 
- * For example, a user called USER001:
- *
- * @code 
- * $ cd 
- * $ nano .bashrc
- * PATH=$PATH:~/bin
- * LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/USER001/boost/boost_1_69_0/lib:/path/to/USER001/lib
- * $ exit
- * @endcode
- *
- * Exit the shell and login again. Change working directory to hypercube, and start building the software:
- *
- * @code 
- * $ cd hypercube
- * $ make clean 
- * $ make 
- * $ make doc 
- * @endcode
- *
- * In order to test the build of plugins, including the one needed to read the sample input hc_9_2_synth.csv file,
- * optionally run:
- *
- * @code 
- * $ make plugin CFLAGS=lllll
- * @endcode
+ * - follow the instructions contained in the INSTALL file in order to build Exppert and this documentation.
  *
  * In case of troubles, you can test the makefile is correctly setup using:
  *     

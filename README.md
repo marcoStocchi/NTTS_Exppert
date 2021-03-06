@@ -1,14 +1,12 @@
 # Exppert
 #### An open-source tool for experimenting with noise based perturbation schemes
-#### (F. Ricciato, M. Stocchi, F. Bach, A. Bujnowska, W. Kloek)
 
-Copyright (c) European Commission, 2021.
-
+Copyright European Commission, 2021.
 
 
 #### Platform Requirements
 
-The present makefile system has been tested on Red Hat Enterprise (R) Linux 6.1 (Santiago) and on Fedora 31 Server.
+The build has been tested on Red Hat Enterprise (R) Linux 6.1 (Santiago) and on Fedora 31 Server.
 
 #### Dependencies
 
@@ -21,7 +19,7 @@ The present makefile system has been tested on Red Hat Enterprise (R) Linux 6.1 
 - R package Ptable (https://github.com/sdcTools/ptable)
 - input dataset (https://github.com/eurostat/confly/blob/master/data/hc_9_2_synth.csv)
 
-#### build from sources
+#### Build from sources
 Install all the dependencies, then 
 
 ```sh
