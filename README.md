@@ -42,8 +42,9 @@ $ make clean
 $ make
 ```
 
-To clean all output artifacts, you can use the target "clean-output": 
-Warning (!): this will remove all the contents of the folder pointed by PATH_DATA_OUT.
+To clean all output artifacts, you can use the target "clean-output".
+
+Warning (!) this will remove all the contents of the folder pointed by PATH_DATA_OUT.
     Use "make test" to check the correctness of the output path.
 
 ```sh
