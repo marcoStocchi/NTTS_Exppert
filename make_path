@@ -1,0 +1,33 @@
+## determine source code and
+## build paths, starting from the 
+## current working dir as root folder
+## of the project
+PATH_THIS=$(shell pwd)
+PATH_SRC=$(PATH_THIS)/src
+PATH_BUILD=$(PATH_THIS)/build
+PATH_DATA=$(PATH_THIS)/data
+
+## modify your installation paths here
+## if these are not ok for you.
+PATH_INSTALL_BIN=$(HOME)/bin
+PATH_INSTALL_LIB=$(HOME)/lib
+PATH_INSTALL_INC=$(HOME)/include
+
+## state 'libssh' (not to be confused with libssh2) 
+## include and library directory
+PATH_LIBSSH_INC=$(HOME)/libssh-0.5.3/include
+PATH_LIBSSH_LIB=$(HOME)/lib
+
+## choose one of the three to define
+## support for libssh (needed to distribute 
+## jobs among multiple machines).
+#VER_LIBSSH=NOLIBSSH
+#VER_LIBSSH=LIBSSH481
+VER_LIBSSH=LIBSSH423
+
+## specify boost libraries directory
+PATH_BOOST=$(HOME)/src/boost_1_69_0
+
+## specify R connector directory
+PATH_R=/usr/lib64/R/include
+PATH_LIBR=/usr/lib64/R/lib
