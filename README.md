@@ -31,5 +31,23 @@ $ make test
 $ make
 ```
 
-The target "make test" should help you diagnose the paths used by the build.
+The target "make test" is optional and it should help you diagnose the paths used by the build.
 To change them, manually modify the file "make_path" and/or "makefile".
+Once your setup is ready, there is no need to call make test again in the next builds.
+
+In order to rebuild the code,
+
+```sh
+$ make clean
+$ make
+```
+
+To clean all output artifacts, you can use the target "clean-output": 
+Warning (!): this will remove all the contents of the folder pointed by PATH_DATA_OUT.
+    Use "make test" to check the correctness of the output path.
+
+```sh
+$ make test
+$ make clean-output
+```
+
