@@ -272,7 +272,7 @@ auto confly_api usage()
 	->int
 {
 	::puts("");
-	::puts("usage: confly [options]");
+	::puts("usage: exppert [options]");
 	::puts("");
 	::puts("   -h    --help          show this message.");
 	::puts("         --version       show version information.");
@@ -291,7 +291,7 @@ auto confly_api usage()
 	::puts("                         create the hypercubes only.");
 	::puts("         --distribute    distribute the aggregation to");
 	::puts("                         multiple machines. On each");
-	::puts("                         machine 'confly --aggregate");
+	::puts("                         machine 'exppert --aggregate");
 	::puts("                         --no-traverse' is performed");
     ::puts("                         automatically.");
 	::puts("         --traverse      read hypercubes and create");
@@ -299,10 +299,10 @@ auto confly_api usage()
 	::puts("");
 	::puts("examples:");
 	::puts("");
-	::puts("./confly -c config.json --aggregate");
-	::puts("./confly -c config.json --aggregate --no-traverse");
-	::puts("./confly -c config.json --distribute");
-	::puts("./confly -c config.json --traverse");
+	::puts("./exppert -c config.json --aggregate");
+	::puts("./exppert -c config.json --aggregate --no-traverse");
+	::puts("./exppert -c config.json --distribute");
+	::puts("./exppert -c config.json --traverse");
 	::puts("");
 
 	return 0;
