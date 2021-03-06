@@ -29,6 +29,7 @@ $ git clone https://github.com/marcoStocchi/NTTS_Exppert.git exppert
 $ cd exppert/
 $ make test
 $ make
+$ make doc
 ```
 
 The target "make test" is optional and it should help you diagnose the paths used by the build.
