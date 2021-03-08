@@ -2,7 +2,7 @@
 #### An open-source tool for experimenting with noise based perturbation schemes
 
 Copyright European Commission, 2021.
-
+This source code is released under the European Union Public Licese (EUPL) version 1.2. See LICENSE.
 
 #### Platform Requirements
 
